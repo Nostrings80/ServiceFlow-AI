@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite has no native enum support, so Role and JobStatus are plain strings
+// constrained by application code (see src/lib/auth.ts and the jobs API routes).
+
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  users     User[]
+  customers Customer[]
+  jobs      Job[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  companyId    String
+  company      Company  @relation(fields: [companyId], references: [id])
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("TECHNICIAN")
+  phone        String?
+  createdAt    DateTime @default(now())
+
+  assignedJobs Job[] @relation("AssignedTechnician")
+
+  @@index([companyId])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  createdAt DateTime @default(now())
+
+  jobs Job[]
+
+  @@index([companyId])
+}
+
+model Job {
+  id            String    @id @default(cuid())
+  companyId     String
+  company       Company   @relation(fields: [companyId], references: [id])
+  customerId    String
+  customer      Customer  @relation(fields: [customerId], references: [id])
+  assignedToId  String?
+  assignedTo    User?     @relation("AssignedTechnician", fields: [assignedToId], references: [id])
+  title         String
+  description   String?
+  address       String?
+  status        String    @default("UNASSIGNED")
+  scheduledAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([companyId])
+  @@index([assignedToId])
+  @@index([status])
+}
