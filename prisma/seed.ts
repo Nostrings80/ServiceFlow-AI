@@ -27,7 +27,7 @@ async function main() {
       email: "alex@acme.test",
       passwordHash,
       role: "TECHNICIAN",
-      phone: "555-0101",
+      phone: "+15555550101",
     },
   });
 
@@ -38,33 +38,37 @@ async function main() {
       email: "sam@acme.test",
       passwordHash,
       role: "TECHNICIAN",
-      phone: "555-0102",
+      phone: "+15555550102",
     },
   });
 
+  // Real, geocodable addresses so the "on my way" routing demo works once
+  // GOOGLE_MAPS_API_KEY is configured. Phone numbers use the 555 exchange,
+  // which is reserved for fictional use and never a real subscriber — swap
+  // in a real E.164 number to test SMS delivery.
   const [customerA, customerB, customerC] = await Promise.all([
     db.customer.create({
       data: {
         companyId: company.id,
         name: "Riverside Apartments",
-        phone: "555-1001",
-        address: "220 Riverside Dr",
+        phone: "+15555551001",
+        address: "220 Congress Ave, Austin, TX 78701",
       },
     }),
     db.customer.create({
       data: {
         companyId: company.id,
         name: "Maple Street Diner",
-        phone: "555-1002",
-        address: "88 Maple St",
+        phone: "+15555551002",
+        address: "88 Rainey St, Austin, TX 78701",
       },
     }),
     db.customer.create({
       data: {
         companyId: company.id,
         name: "Grandview Office Park",
-        phone: "555-1003",
-        address: "4 Grandview Plaza",
+        phone: "+15555551003",
+        address: "4 Barton Springs Rd, Austin, TX 78704",
       },
     }),
   ]);
@@ -86,7 +90,7 @@ async function main() {
         assignedToId: alex.id,
         title: "Fix leaking kitchen sink",
         description: "Tenant in unit 4B reports steady drip under the sink.",
-        address: "220 Riverside Dr, Unit 4B",
+        address: "220 Congress Ave, Unit 4B, Austin, TX 78701",
         status: "SCHEDULED",
         scheduledAt: today9am,
       },
@@ -96,7 +100,7 @@ async function main() {
         assignedToId: alex.id,
         title: "Inspect walk-in cooler",
         description: "Cooler running warm overnight, check compressor.",
-        address: "88 Maple St",
+        address: "88 Rainey St, Austin, TX 78701",
         status: "IN_PROGRESS",
         scheduledAt: today2pm,
       },
@@ -105,7 +109,7 @@ async function main() {
         customerId: customerC.id,
         assignedToId: sam.id,
         title: "Replace HVAC filter bank",
-        address: "4 Grandview Plaza, Suite 200",
+        address: "4 Barton Springs Rd, Suite 200, Austin, TX 78704",
         status: "SCHEDULED",
         scheduledAt: tomorrow10am,
       },
@@ -113,7 +117,7 @@ async function main() {
         companyId: company.id,
         customerId: customerA.id,
         title: "Quarterly fire extinguisher check",
-        address: "220 Riverside Dr",
+        address: "220 Congress Ave, Austin, TX 78701",
         status: "UNASSIGNED",
       },
       {
@@ -121,7 +125,7 @@ async function main() {
         customerId: customerB.id,
         assignedToId: sam.id,
         title: "Repair dining room lighting",
-        address: "88 Maple St",
+        address: "88 Rainey St, Austin, TX 78701",
         status: "COMPLETED",
       },
     ],

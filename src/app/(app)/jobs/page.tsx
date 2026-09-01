@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { StatusBadge } from "@/components/StatusBadge";
 
-const STATUSES = ["UNASSIGNED", "SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELED"];
+const STATUSES = ["UNASSIGNED", "SCHEDULED", "ON_THE_WAY", "IN_PROGRESS", "COMPLETED", "CANCELED"];
 
 export default async function JobsPage({
   searchParams,
@@ -84,7 +84,7 @@ export default async function JobsPage({
               sp.status === status ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600"
             }`}
           >
-            {status.replace("_", " ")}
+            {status.replaceAll("_", " ")}
           </Link>
         ))}
       </div>

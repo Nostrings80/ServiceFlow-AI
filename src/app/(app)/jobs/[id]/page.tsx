@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { StatusBadge } from "@/components/StatusBadge";
+import { googleMapsDirectionsUrl } from "@/lib/maps";
 import { JobActions } from "./JobActions";
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,6 +24,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const technicians = isAdmin
     ? await db.user.findMany({ where: { companyId: session.companyId, role: "TECHNICIAN" }, orderBy: { name: "asc" } })
     : [];
+
+  const mapsUrl =
+    job.lat !== null && job.lng !== null
+      ? googleMapsDirectionsUrl({ lat: job.lat, lng: job.lng })
+      : job.address
+        ? googleMapsDirectionsUrl({ address: job.address })
+        : null;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -68,6 +76,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         isAdmin={isAdmin}
         assignedToId={job.assignedToId}
         technicians={technicians.map((t) => ({ id: t.id, name: t.name }))}
+        etaMinutes={job.etaMinutes}
+        distanceMeters={job.distanceMeters}
+        routeType={job.routeType}
+        mapsUrl={mapsUrl}
       />
     </div>
   );

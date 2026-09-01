@@ -20,9 +20,20 @@ status as they work.
 - **Roles**: `ADMIN` manages technicians, customers, and all jobs.
   `TECHNICIAN` sees and updates only jobs assigned to them.
 - **Jobs**: create, assign/reassign a technician, schedule a date/time, and
-  move through `UNASSIGNED → SCHEDULED → IN_PROGRESS → COMPLETED` (or
-  `CANCELED`). Technicians can only start/complete their own jobs; only
-  admins can reassign or reschedule.
+  move through `UNASSIGNED → SCHEDULED → ON_THE_WAY → IN_PROGRESS →
+  COMPLETED` (or `CANCELED`). Technicians can only start/complete their own
+  jobs; only admins can reassign or reschedule.
+- **"On my way" (traffic-aware routing + customer SMS)**: when a technician
+  taps **On my way**, the app takes their current GPS position, computes a
+  live-traffic-aware route to the job (via the Google Routes API, which is
+  also asked for a fuel-efficient alternative — the app picks whichever is
+  the better tradeoff of time vs. fuel, favoring the greener route unless it
+  costs more than 5 extra minutes), stores the ETA/distance on the job, and
+  texts the customer an ETA via Twilio SMS. Everyone on the job can tap
+  through to turn-by-turn navigation in Google Maps. See
+  [Optional integrations](#optional-integrations-on-my-way-routing--sms)
+  below to turn this on — without it configured, the feature still marks the
+  job "on the way," just without a route or text.
 - **Dashboard**: job counts by status and today's schedule, scoped to the
   signed-in user's role.
 - **Technicians & Customers**: admin-only management pages.
@@ -47,6 +58,29 @@ Visit http://localhost:3000 and sign in with one of the seeded accounts:
 
 To reset the database at any point: `npm run db:reset`.
 
+## Optional integrations: "On my way" routing & SMS
+
+Add these to `.env` to turn on live routing + customer texts (see
+`.env.example` for the full list):
+
+```
+GOOGLE_MAPS_API_KEY=""     # Cloud project with Routes API + Geocoding API enabled
+TWILIO_ACCOUNT_SID=""
+TWILIO_AUTH_TOKEN=""
+TWILIO_FROM_NUMBER=""      # your Twilio number, E.164 format e.g. +15551234567
+```
+
+- **Google Maps**: create a Google Cloud project, enable the **Routes API**
+  and **Geocoding API**, and create an API key.
+- **Twilio**: create a Twilio account, buy/verify a phone number, and copy
+  the Account SID, Auth Token, and that number into `.env`.
+- Customer phone numbers must be in **E.164 format** (`+1XXXXXXXXXX` for US
+  numbers) for the SMS to send.
+
+Without these set, tapping "On my way" still updates the job's status and
+tells the technician what wasn't sent and why (e.g. "SMS not sent: Twilio is
+not configured") rather than failing outright.
+
 ## Project layout
 
 ```
@@ -54,10 +88,13 @@ prisma/schema.prisma          Company / User / Customer / Job models
 prisma/seed.ts                Demo data
 src/lib/db.ts                 Prisma client singleton
 src/lib/auth.ts               Session (JWT) creation/verification
+src/lib/maps.ts               Geocoding + traffic-aware/fuel-efficient routing (Google Routes API)
+src/lib/sms.ts                Twilio SMS
 src/middleware.ts             Route protection (redirects unauthenticated users)
 src/app/login/                Login page
 src/app/(app)/                Authenticated shell: dashboard, jobs, technicians, customers
 src/app/api/                  REST-ish route handlers backing each feature
+src/app/api/jobs/[id]/on-the-way/  "On my way" — routing + SMS side effects
 ```
 
 ## Known limitations

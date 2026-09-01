@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { StatusBadge } from "@/components/StatusBadge";
 
-const STATUSES = ["UNASSIGNED", "SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELED"] as const;
+const STATUSES = ["UNASSIGNED", "SCHEDULED", "ON_THE_WAY", "IN_PROGRESS", "COMPLETED", "CANCELED"] as const;
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {counts.map(({ status, count }) => (
           <div key={status} className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-2xl font-semibold text-slate-900">{count}</p>
@@ -80,6 +80,7 @@ export default async function DashboardPage() {
                     {job.scheduledAt
                       ? ` · ${job.scheduledAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
                       : ""}
+                    {job.status === "ON_THE_WAY" && job.etaMinutes ? ` · ETA ~${job.etaMinutes} min` : ""}
                   </p>
                 </div>
                 <StatusBadge status={job.status} />

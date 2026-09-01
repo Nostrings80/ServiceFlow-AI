@@ -64,6 +64,16 @@ model Job {
   address       String?
   status        String    @default("UNASSIGNED")
   scheduledAt   DateTime?
+
+  // Destination coordinates, geocoded from `address` the first time a route is computed.
+  lat             Float?
+  lng             Float?
+  // Most recent route computed for the "on my way" notification.
+  etaMinutes      Int?
+  distanceMeters  Int?
+  routeType       String? // "FASTEST" | "FUEL_EFFICIENT"
+  onWayNotifiedAt DateTime?
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

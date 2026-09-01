@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-const VALID_STATUSES = ["UNASSIGNED", "SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELED"];
+const VALID_STATUSES = ["UNASSIGNED", "SCHEDULED", "ON_THE_WAY", "IN_PROGRESS", "COMPLETED", "CANCELED"];
 const TECHNICIAN_ALLOWED_STATUSES = ["IN_PROGRESS", "COMPLETED"];
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
